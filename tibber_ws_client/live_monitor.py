@@ -6,6 +6,19 @@ import json
 import _thread
 import time
 import argparse
+import logging
+
+import logging
+import sys
+
+#root = logging.getLogger()
+#root.setLevel(logging.DEBUG)
+#
+#handler = logging.StreamHandler(sys.stdout)
+#handler.setLevel(logging.WARN)
+#formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+#handler.setFormatter(formatter)
+#root.addHandler(handler)
 
 class Config():
     def __init__(self):
@@ -97,14 +110,17 @@ def initialize_websocket():
                               on_message = console_handler,
                               on_error = on_error,
                               on_close = on_close)
+    websocket_logger = logging.getLogger('websocket')
+    websocket_logger.setLevel(logging.WARN)
     ws.on_open = on_open
     ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE, "check_hostname": False})
 
 
 def main():
     parser = argparse.ArgumentParser(description='Start monitoring.')
-    parser.add_argument('token', type=str, help='Personal token')
-    parser.add_argument('home_id', type=str, help='Home id')
+    parser.add_argument('--token', type=str, help='Personal token')
+    parser.add_argument('--home-id', type=str, help='Home id')
+    parser.add_argument('--config', type=str, help="Config file with necessary tokens")
 
     args = parser.parse_args()
 
