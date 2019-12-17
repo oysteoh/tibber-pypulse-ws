@@ -11,25 +11,6 @@ import logging
 import logging
 import sys
 
-#root = logging.getLogger()
-#root.setLevel(logging.DEBUG)
-#
-#handler = logging.StreamHandler(sys.stdout)
-#handler.setLevel(logging.WARN)
-#formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-#handler.setFormatter(formatter)
-#root.addHandler(handler)
-
-class Config():
-    def __init__(self):
-        self.api_url = "wss://api.tibber.com/v1-beta/gql/subscriptions"
-
-    def init(self, token, home_id):
-        self.token = token 
-        self.home_id = home_id
-
-config = Config()
-
 header = {
     'Sec-WebSocket-Protocol': 'graphql-subscriptions'
 }
@@ -114,23 +95,3 @@ def initialize_websocket():
     websocket_logger.setLevel(logging.WARN)
     ws.on_open = on_open
     ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE, "check_hostname": False})
-
-
-def main():
-    parser = argparse.ArgumentParser(description='Start monitoring.')
-    parser.add_argument('--token', type=str, help='Personal token')
-    parser.add_argument('--home-id', type=str, help='Home id')
-    parser.add_argument('--config', type=str, help="Config file with necessary tokens")
-
-    args = parser.parse_args()
-
-
-    config.init(args.token, args.home_id)
-    
-
-    initialize_websocket()
-
-
-    
-if __name__ == "__main__":
-    main()
