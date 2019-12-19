@@ -1,8 +1,7 @@
 import requests
 import pprint
 
-headers = {
-    "Authorization": "Bearer "}
+headers = None
 
 
 def name():
@@ -14,7 +13,7 @@ def name():
     }
     """
     result = execute(query)
-    print(result['data']['viewer']['name'])
+    print(result["data"]["viewer"]["name"])
 
 
 def homes():
@@ -86,6 +85,7 @@ def consumption():
     result = execute(query)
     pprint.pprint(result)
 
+
 def home_price_consumption():
     query = """
     {
@@ -134,6 +134,7 @@ def home_price_consumption():
     result = execute(query)
     pprint.pprint(result)
 
+
 def push_notification(message):
     query = """
     mutation {{
@@ -142,19 +143,25 @@ def push_notification(message):
         pushedToNumberOfDevices
     }}
     }}
-    """.format(message)
+    """.format(
+        message
+    )
     result = execute(query)
     pprint.pprint(result)
 
 
 def execute(query):
     request = requests.post(
-        'https://api.tibber.com/v1-beta/gql', json={'query': query}, headers=headers)
+        "https://api.tibber.com/v1-beta/gql", json={"query": query}, headers=headers
+    )
     if request.status_code == 200:
         return request.json()
     else:
-        raise Exception("Query failed to run by returning code of {}. {}".format(
-            request.status_code, query))
+        raise Exception(
+            "Query failed to run by returning code of {}. {}".format(
+                request.status_code, query
+            )
+        )
 
 
 if __name__ == "__main__":
