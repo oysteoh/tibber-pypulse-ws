@@ -40,11 +40,9 @@ def console_handler(ws, message):
     if "payload" in data:
         measurement = data["payload"]["data"]["liveMeasurement"]
         keys = list(measurement.keys())
-        if len(result) == 0:
-            result.append(keys)
         values = list(measurement.values())
         result.append(values)
-        df = pd.DataFrame(result)
+        df = pd.DataFrame(result, columns=keys)
         print(df)
 
 
