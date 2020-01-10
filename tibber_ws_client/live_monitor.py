@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
-import sys
-import websocket
-import ssl
-import json
-import _thread
-import time
 import argparse
+import json
 import logging
 import os
-import logging
-import sys
-import pandas as pd
-from pandas.io.json import json_normalize
 import pprint
+import ssl
+import sys
+import time
 
-config = None
+import pandas as pd
+import websocket
+from pandas.io.json import json_normalize
 
-header = {"Sec-WebSocket-Protocol": "graphql-subscriptions"}
+import _thread
+
+config = {}
 
 result = []
 
@@ -24,8 +22,8 @@ result = []
 def start():
     # websocket.enableTrace(True)
     ws = websocket.WebSocketApp(
-        config.api_url,
-        header=header,
+        config["api_url"],
+        header=config["ws_header"],
         on_message=console_handler,
         on_error=on_error,
         on_close=on_close,
@@ -42,7 +40,7 @@ def console_handler(ws, message):
     if "payload" in data:
         measurement = data["payload"]["data"]["liveMeasurement"]
         keys = list(measurement.keys())
-        if len(result) == 0:            
+        if len(result) == 0:
             result.append(keys)
         values = list(measurement.values())
         result.append(values)
@@ -62,7 +60,7 @@ def on_open(ws):
     def run(*args):
         init_data = {
             "type": "init",
-            "payload": "token={token}".format(token=config.token),
+            "payload": "token={token}".format(token=config["token"]),
         }
         init = json.dumps(init_data)
         ws.send(init)
@@ -88,7 +86,7 @@ def on_open(ws):
             }}
         }}
         """.format(
-            home_id=config.home_id
+            home_id=config["home_id"]
         )
 
         subscribe_data = {"query": query, "type": "subscription_start", "id": 0}
@@ -96,6 +94,7 @@ def on_open(ws):
         ws.send(subscribe)
 
     _thread.start_new_thread(run, ())
+
 
 # Timestamp when usage occured
 # Consumption at the moment (Watt)
@@ -115,7 +114,7 @@ def on_open(ws):
 # Power factor (active power / apparent power)
 # Voltage on phase 1; on Kaifa and Aidon meters the value is not part of every HAN data frame therefore the value is null at timestamps with second value other than 0, 10, 20, 30, 40, 50. There can be other deviations based on concrete meter firmware.
 # Current on phase 1; on Kaifa and Aidon meters the value is not part of every HAN data frame therefore the value is null at timestamps with second value other than 0, 10, 20, 30, 40, 50. There can be other deviations based on concrete meter firmware.
- 
+
 #  timestamp
 #  power
 #  lastMeterConsumption

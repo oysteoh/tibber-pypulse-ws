@@ -1,34 +1,38 @@
-import sys
 import argparse
+import json
+import os
+import sys
+
 import live_monitor
-import ws_client
 
 
-class Config:
-    def __init__(self, token, home_id):
-        self.api_url = "wss://api.tibber.com/v1-beta/gql/subscriptions"
-        self.token = token
-        self.home_id = home_id
+def valid_file(arg):
+    if os.path.isfile(arg):
+        return arg
+    raise argparse.ArgumentTypeError("{} is not a existing file!".format(arg))
 
 
-def main():
+def main(args):
     parser = argparse.ArgumentParser(description="Start monitoring.")
-    parser.add_argument("--token", type=str, help="Personal token")
-    parser.add_argument("--home-id", type=str, help="Home id")
-    parser.add_argument("--config", type=str, help="Config file with necessary tokens")
+    parser.add_argument(
+        "config", type=valid_file, help="Config file with necessary tokens"
+    )
+    parser.add_argument(
+        "--live", action="store_true", help="Run live power data monitoring"
+    )
 
     args = parser.parse_args()
 
-    config = Config(args.token, args.home_id)
+    with open(args.config, "r") as config_file:
+        config = json.load(config_file)
 
-    ws_client.headers = {"Authorization": "Bearer {}".format(args.token)}
+    config["header"] = {"Authorization": "Bearer {}".format(config["token"])}
+    config["ws_header"] = {"Sec-WebSocket-Protocol": "graphql-subscriptions"}
 
-    print("Hei!")
-    ws_client.name()
-    #ws_client.home_price_consumption()
-    live_monitor.config = config
-    live_monitor.start()
+    if args.live:
+        live_monitor.config = config
+        live_monitor.start()
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
